@@ -34,8 +34,10 @@ public class OrderRepositoryR2dbcTests {
     }
 
     private static String r2dbcUrl() {
-        return String.format("r2dbc:postgresql://%s:%s/%s", postgresql.getHost(),
-                postgresql.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT), postgresql.getDatabaseName());
+        return String.format("r2dbc:postgresql://%s:%s/%s",
+                postgresql.getHost(),
+                postgresql.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT),
+                postgresql.getDatabaseName());
     }
 
     @Test
