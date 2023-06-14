@@ -3,16 +3,21 @@ package com.bladespring.bookshop.orderservice.domain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.bladespring.bookshop.orderservice.book.Book;
+import com.bladespring.bookshop.orderservice.book.BookClient;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
+    private final BookClient bookClient;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, BookClient bookClient) {
         this.orderRepository = orderRepository;
+        this.bookClient = bookClient;
     }
 
     public Flux<Order> getAllOrders() {
@@ -20,8 +25,15 @@ public class OrderService {
     }
 
     public Mono<Order> submitOrder(String isbn, int quantity) {
-        return Mono.just(buildRejectedOrder(isbn, quantity))
+        return bookClient.getBookByIsbn(isbn)
+                .map(book -> buildAcceptedOrder(book, quantity))
+                .defaultIfEmpty(buildRejectedOrder(isbn, quantity))
                 .flatMap(orderRepository::save);
+    }
+
+    public static Order buildAcceptedOrder(Book book, int quantity) {
+        return Order.of(book.isbn(), book.title() + " - " + book.author(),
+                book.price(), quantity, OrderStatus.ACCEPTED);
     }
 
     public static Order buildRejectedOrder(String bookIsbn, int quantity) {
