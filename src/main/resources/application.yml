@@ -22,3 +22,7 @@ spring:
     user: ${spring.r2dbc.username}
     password: ${spring.r2dbc.password}
     url: jdbc:postgresql://localhost:5432/bookshopdb_order
+
+logging:
+  level:
+    web: debug
